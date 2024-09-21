@@ -8,12 +8,14 @@ import (
 )
 
 type HttpServer struct {
-	mux *http.ServeMux
+	mux                               *http.ServeMux
+	subscriptionUpdateIntervalSeconds int
 }
 
-func NewHttpServer() *HttpServer {
+func NewHttpServer(subscriptionUpdateIntervalSeconds int) *HttpServer {
 	s := &HttpServer{
-		mux: http.NewServeMux(),
+		mux:                               http.NewServeMux(),
+		subscriptionUpdateIntervalSeconds: subscriptionUpdateIntervalSeconds,
 	}
 	s.mux.HandleFunc("/metrics", promhttp.HandlerFor(prometheus.DefaultGatherer, promhttp.HandlerOpts{}).ServeHTTP)
 
@@ -36,7 +38,8 @@ func (s *HttpServer) ScrapeHandler(w http.ResponseWriter, r *http.Request) {
 
 	registry := prometheus.NewRegistry()
 	e := NewExporter(&ExporterTarget{
-		URL: target,
+		URL:                               target,
+		SubscriptionUpdateIntervalSeconds: s.subscriptionUpdateIntervalSeconds,
 	})
 	registry.MustRegister(e)
 

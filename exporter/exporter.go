@@ -8,7 +8,8 @@ import (
 )
 
 type Exporter struct {
-	subscription_url string
+	subscriptionURL                   string
+	subscriptionUpdateIntervalSeconds int
 
 	metricsUp,
 	metricsRefreshed,
@@ -19,7 +20,8 @@ type Exporter struct {
 }
 
 type ExporterTarget struct {
-	URL string
+	URL                               string
+	SubscriptionUpdateIntervalSeconds int
 }
 
 func NewExporter(t *ExporterTarget) *Exporter {
@@ -29,7 +31,8 @@ func NewExporter(t *ExporterTarget) *Exporter {
 	)
 
 	e := &Exporter{
-		subscription_url: t.URL,
+		subscriptionURL:                   t.URL,
+		subscriptionUpdateIntervalSeconds: t.SubscriptionUpdateIntervalSeconds,
 		metricsUp: prometheus.NewDesc("airport_online",
 			"Airpot collector online",
 			nil, constLabels,
@@ -74,12 +77,12 @@ func (k *Exporter) Describe(ch chan<- *prometheus.Desc) {
 }
 
 func (k *Exporter) Collect(ch chan<- prometheus.Metric) {
-	sub, err := parse(k.subscription_url)
+	sub, err := parse(k.subscriptionURL, k.subscriptionUpdateIntervalSeconds)
 
 	if err != nil {
 		ch <- prometheus.MustNewConstMetric(k.metricsUp, prometheus.GaugeValue,
 			0)
-		log.Errorln("error collecting", k.subscription_url, ":", err)
+		log.Errorln("error collecting", k.subscriptionURL, ":", err)
 		return
 	}
 

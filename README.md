@@ -15,9 +15,10 @@ Use the -h flag to see full usage:
 
 ```
 $ airport-subscription-exporter -h
-Usage of airport-subscription-exporter:
   -metrics.listen-addr string
-        listen address for airport-subscription exporter (default ":9991")
+        listen address for airport subscription exporter (default ":9991")
+  -sub.update-interval string
+        how long should exporter actually update subscription info (default "1h")
 ```
 
 ```
